@@ -22,9 +22,11 @@ class DashboardController extends Controller
         )->first();
 
         // One query for today's + this month's sales.
+        // sale_date is a date cast, so it is stored as "Y-m-d 00:00:00" — comparing it
+        // to a bare "Y-m-d" never matches. DATE() strips the time, as the chart below does.
         $salesAgg = Sale::selectRaw(
-            'SUM(CASE WHEN sale_date = ? THEN total ELSE 0 END) as today_total,'
-            . ' SUM(CASE WHEN sale_date = ? THEN 1 ELSE 0 END) as today_count,'
+            'SUM(CASE WHEN DATE(sale_date) = ? THEN total ELSE 0 END) as today_total,'
+            . ' SUM(CASE WHEN DATE(sale_date) = ? THEN 1 ELSE 0 END) as today_count,'
             . " SUM(CASE WHEN strftime('%m', sale_date) = ? AND strftime('%Y', sale_date) = ? THEN total ELSE 0 END) as month_total",
             [$today->toDateString(), $today->toDateString(), $today->format('m'), $today->format('Y')]
         )->first();

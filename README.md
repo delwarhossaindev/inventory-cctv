@@ -499,6 +499,8 @@ Then run `php artisan migrate --seed`.
 |---------|---------|
 | `php artisan app:seed-cctv-catalog` | Seed / refresh the CCTV catalog — categories, products, photos, prices, suppliers, units and two FIFO layers per product. Idempotent. |
 | `php artisan app:seed-cctv-catalog --fresh` | ⚠️ Wipe the catalog **and every sale, purchase, return, payment and quotation that references it**, then reseed. |
+| `php artisan app:seed-demo-transactions` | Generate demo trading history — purchases, sales, returns, payments, expenses, quotations, instalments and cash-register shifts. `--days=90` for a longer window. |
+| `php artisan app:seed-demo-transactions --fresh` | ⚠️ Wipe existing transactions, rebuild opening stock from the catalog, then regenerate the demo history. |
 | `php artisan app:rebuild-stock-batches` | Create opening FIFO batches for any current stock not yet backed by a batch. |
 | `php artisan app:import-products` | Legacy: import products from `public/products.xlsx`. Superseded by the catalog seeder, kept for spreadsheet imports. |
 | `php artisan app:seed-fifo-data` | Legacy: overwrite every product's price and rebuild two FIFO layers. Kept for demo resets. |
