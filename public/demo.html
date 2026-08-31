@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inventory System — Feature Demo</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #0a0f1e;
+  --surface:  #111827;
+  --surface2: #1e293b;
+  --border:   #1e3a5f;
+  --blue:     #3b82f6;
+  --blue-dim: #1d4ed8;
+  --green:    #10b981;
+  --amber:    #f59e0b;
+  --red:      #ef4444;
+  --purple:   #8b5cf6;
+  --cyan:     #06b6d4;
+  --text:     #f8fafc;
+  --muted:    #64748b;
+  --muted2:   #94a3b8;
+  --duration: 5000;
+}
+
+html, body {
+  height: 100%; width: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  color: var(--text);
+}
+
+/* ── STAGE ─────────────────────────────────── */
+#stage {
+  position: relative;
+  width: 100vw; height: 100vh;
+  display: flex; flex-direction: column;
+}
+
+/* ── SLIDES ─────────────────────────────────── */
+.slide {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 48px 64px 96px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .7s ease;
+  overflow: hidden;
+}
+.slide.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ── BACKGROUND GLOW ───────────────────────── */
+.glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: .15;
+  pointer-events: none;
+}
+.glow-blue  { background: var(--blue);   width: 600px; height: 600px; }
+.glow-green { background: var(--green);  width: 400px; height: 400px; }
+.glow-purple{ background: var(--purple); width: 500px; height: 500px; }
+
+/* ── SLIDE INNER ANIMATION ──────────────────── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.slide.active .anim {
+  animation: fadeUp .6s ease both;
+}
+.slide.active .anim-1 { animation-delay: .1s; }
+.slide.active .anim-2 { animation-delay: .25s; }
+.slide.active .anim-3 { animation-delay: .4s; }
+.slide.active .anim-4 { animation-delay: .55s; }
+.slide.active .anim-5 { animation-delay: .7s; }
+.slide.active .anim-6 { animation-delay: .85s; }
+
+/* ── VIDEO CONTROLS ─────────────────────────── */
+#controls {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: 72px;
+  background: linear-gradient(to top, rgba(10,15,30,.97), transparent);
+  display: flex; align-items: center; gap: 16px;
+  padding: 0 24px;
+  z-index: 100;
+}
+
+#progress-track {
+  flex: 1; height: 4px;
+  background: rgba(255,255,255,.12);
+  border-radius: 2px;
+  cursor: pointer;
+  position: relative;
+  overflow: visible;
+}
+#progress-fill {
+  height: 100%; border-radius: 2px;
+  background: var(--blue);
+  width: 0%;
+  transition: width .1s linear;
+  position: relative;
+}
+#progress-fill::after {
+  content: '';
+  position: absolute; right: -4px; top: -4px;
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  background: var(--blue);
+  box-shadow: 0 0 8px var(--blue);
+}
+
+.ctrl-btn {
+  background: none; border: none; cursor: pointer;
+  color: var(--muted2); font-size: 18px; line-height: 1;
+  padding: 6px; border-radius: 6px;
+  transition: color .2s, background .2s;
+  display: flex; align-items: center; justify-content: center;
+}
+.ctrl-btn:hover { color: var(--text); background: rgba(255,255,255,.08); }
+
+#slide-counter {
+  font-size: 12px; color: var(--muted); letter-spacing: .05em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* ── DOT INDICATORS ─────────────────────────── */
+#dots {
+  display: flex; gap: 6px; align-items: center;
+}
+.dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--muted);
+  cursor: pointer;
+  transition: all .3s;
+}
+.dot.active { background: var(--blue); width: 20px; border-radius: 3px; }
+
+/* ════════════════════════════════════════════
+   SLIDE 1 — COVER
+══════════════════════════════════════════════ */
+#s1 { text-align: center; }
+#s1 .glow-blue  { top: -200px; left: -100px; }
+#s1 .glow-purple{ bottom: -200px; right: -100px; }
+
+.cover-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 6px 16px; border-radius: 20px;
+  border: 1px solid var(--border);
+  background: rgba(59,130,246,.08);
+  color: var(--blue); font-size: 12px; font-weight: 600;
+  letter-spacing: .08em; text-transform: uppercase;
+  margin-bottom: 24px;
+}
+.cover-title {
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-weight: 800; line-height: 1.05;
+  letter-spacing: -.03em;
+  text-wrap: balance;
+  margin-bottom: 16px;
+}
+.cover-title span { color: var(--blue); }
+.cover-sub {
+  font-size: clamp(1rem, 2vw, 1.2rem);
+  color: var(--muted2);
+  margin-bottom: 40px;
+  max-width: 520px; margin-left: auto; margin-right: auto;
+  line-height: 1.6;
+}
+.pill-row {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  justify-content: center;
+}
+.pill {
+  padding: 6px 14px; border-radius: 20px;
+  background: var(--surface2); border: 1px solid var(--border);
+  font-size: 12px; font-weight: 600; color: var(--muted2);
+}
+
+/* ════════════════════════════════════════════
+   SLIDE 2 — DASHBOARD
+══════════════════════════════════════════════ */
+.slide-eyebrow {
+  font-size: 11px; font-weight: 700; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--blue);
+  margin-bottom: 8px;
+}
+.slide-headline {
+  font-size: clamp(1.6rem, 3.5vw, 2.6rem);
+  font-weight: 800; letter-spacing: -.02em; line-height: 1.1;
+  margin-bottom: 8px;
+  text-wrap: balance;
+}
+.slide-desc {
+  font-size: .95rem; color: var(--muted2); line-height: 1.6;
+  margin-bottom: 28px; max-width: 480px;
+}
+
+.stat-row {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+  width: 100%; max-width: 860px;
+}
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+}
+.stat-card .label { font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px; }
+.stat-card .value { font-size: 1.6rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+.stat-card .sub   { font-size: 11px; color: var(--muted); margin-top: 4px; }
+.stat-card.green .value { color: var(--green); }
+.stat-card.blue  .value { color: var(--blue);  }
+.stat-card.amber .value { color: var(--amber); }
+
+.chart-row {
+  display: grid; grid-template-columns: 2fr 1fr; gap: 12px;
+  width: 100%; max-width: 860px; margin-top: 12px;
+}
+.chart-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px; padding: 16px;
+}
+.chart-box .ch-title { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 12px; }
+
+/* fake bar chart */
+.bar-chart { display: flex; align-items: flex-end; gap: 8px; height: 70px; }
+.bar { flex: 1; border-radius: 4px 4px 0 0; background: var(--blue); opacity: .7; position: relative; }
+.bar.highlight { opacity: 1; box-shadow: 0 0 12px rgba(59,130,246,.4); }
+
+/* fake donut */
+.donut-wrap { display: flex; align-items: center; gap: 14px; }
+.donut {
+  width: 64px; height: 64px; border-radius: 50%; flex-shrink: 0;
+  background: conic-gradient(var(--blue) 38%, var(--green) 38% 62%, var(--amber) 62% 75%, var(--purple) 75%);
+  position: relative;
+}
+.donut::after {
+  content: ''; position: absolute; inset: 14px; border-radius: 50%;
+  background: var(--surface);
+}
+.legend { display: flex; flex-direction: column; gap: 5px; }
+.legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--muted2); }
+.legend-dot { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+
+/* ════════════════════════════════════════════
+   SLIDE 3 — POS
+══════════════════════════════════════════════ */
+.pos-layout {
+  display: grid; grid-template-columns: 1fr 320px; gap: 16px;
+  width: 100%; max-width: 880px;
+}
+.pos-grid {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px; padding: 16px;
+}
+.pos-search {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 13px; color: var(--muted);
+  margin-bottom: 14px;
+}
+.pos-search .cursor {
+  width: 2px; height: 16px;
+  background: var(--blue);
+  animation: blink 1s step-end infinite;
+}
+@keyframes blink { 50% { opacity: 0; } }
+
+.product-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.product-tile {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px; padding: 10px 8px;
+  text-align: center; font-size: 11px;
+  cursor: pointer; transition: border-color .2s;
+}
+.product-tile.selected { border-color: var(--blue); background: rgba(59,130,246,.1); }
+.product-tile .pt-icon { font-size: 1.4rem; margin-bottom: 4px; }
+.product-tile .pt-name { font-weight: 600; color: var(--text); margin-bottom: 2px; font-size: 10px; }
+.product-tile .pt-price { color: var(--green); font-weight: 700; }
+
+.cart-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px; padding: 16px;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.cart-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 4px; }
+.cart-item {
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--surface2); border-radius: 8px; padding: 8px 10px;
+  font-size: 12px;
+}
+.cart-item .ci-name { color: var(--text); font-weight: 600; }
+.cart-item .ci-price { color: var(--green); font-weight: 700; }
+.cart-divider { height: 1px; background: var(--border); }
+.cart-total { display: flex; justify-content: space-between; font-size: 13px; }
+.cart-total .ct-label { color: var(--muted); }
+.cart-total .ct-val { font-weight: 800; font-variant-numeric: tabular-nums; }
+.btn-complete {
+  background: var(--green); color: #fff;
+  border: none; border-radius: 8px; padding: 12px;
+  font-weight: 700; font-size: 13px; cursor: pointer;
+  width: 100%; text-align: center; letter-spacing: .02em;
+  box-shadow: 0 0 20px rgba(16,185,129,.3);
+}
+.pay-methods { display: flex; gap: 6px; }
+.pay-btn {
+  flex: 1; padding: 8px 4px; text-align: center;
+  border-radius: 6px; font-size: 10px; font-weight: 700;
+  border: 1px solid var(--border); background: var(--surface2);
+  cursor: pointer; transition: all .2s; color: var(--muted2);
+}
+.pay-btn.active { border-color: var(--blue); color: var(--blue); background: rgba(59,130,246,.1); }
+
+/* ════════════════════════════════════════════
+   SLIDE 4 — INVENTORY
+══════════════════════════════════════════════ */
+.table-mock {
+  width: 100%; max-width: 840px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px; overflow: hidden;
+}
+.table-mock table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.table-mock th {
+  background: var(--surface2); color: var(--muted);
+  font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
+  padding: 12px 16px; text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+.table-mock td {
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(30,58,95,.5);
+  color: var(--muted2);
+}
+.table-mock tr:last-child td { border-bottom: none; }
+.table-mock td strong { color: var(--text); font-weight: 600; }
+.badge {
+  display: inline-flex; align-items: center; padding: 3px 8px;
+  border-radius: 12px; font-size: 10px; font-weight: 700;
+}
+.badge.ok     { background: rgba(16,185,129,.15); color: var(--green); }
+.badge.warn   { background: rgba(245,158,11,.15); color: var(--amber); }
+.badge.danger { background: rgba(239,68,68,.15);  color: var(--red); }
+
+.fifo-bar { display: flex; height: 6px; border-radius: 3px; overflow: hidden; width: 80px; }
+.fifo-used { background: var(--blue); }
+.fifo-left { background: var(--surface2); border: 1px solid var(--border); }
+
+/* ════════════════════════════════════════════
+   SLIDE 5 — FINANCE
+══════════════════════════════════════════════ */
+.finance-grid {
+  display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px;
+  width: 100%; max-width: 840px;
+}
+.finance-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 20px;
+}
+.finance-card .fc-icon { font-size: 1.8rem; margin-bottom: 12px; }
+.finance-card .fc-title { font-size: 13px; font-weight: 700; margin-bottom: 6px; color: var(--text); }
+.finance-card .fc-desc  { font-size: 11px; color: var(--muted); line-height: 1.5; margin-bottom: 14px; }
+.progress-bar { height: 4px; background: var(--surface2); border-radius: 2px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 2px; }
+
+.emi-row { display: flex; justify-content: space-between; align-items: center; font-size: 11px; padding: 6px 0; border-bottom: 1px solid rgba(30,58,95,.5); }
+.emi-row:last-child { border-bottom: none; }
+.emi-row .er-month { color: var(--muted2); }
+.emi-row .er-amount { font-weight: 700; font-variant-numeric: tabular-nums; }
+.emi-row .er-status { }
+
+/* ════════════════════════════════════════════
+   SLIDE 6 — REPORTS / P&L
+══════════════════════════════════════════════ */
+.pl-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 28px;
+  width: 100%; max-width: 680px;
+}
+.pl-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 0; border-bottom: 1px solid rgba(30,58,95,.5);
+  font-size: 13px;
+}
+.pl-row:last-child { border-bottom: none; }
+.pl-row .pr-label { color: var(--muted2); }
+.pl-row .pr-val   { font-weight: 700; font-variant-numeric: tabular-nums; }
+.pl-row.section-head { padding-top: 16px; }
+.pl-row.section-head .pr-label { color: var(--muted); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
+.pl-row.total-row { border-top: 2px solid var(--border); border-bottom: none; margin-top: 8px; padding-top: 14px; }
+.pl-row.total-row .pr-label { font-size: 14px; font-weight: 700; color: var(--text); }
+.pl-row.total-row .pr-val   { font-size: 1.5rem; color: var(--green); }
+
+/* ════════════════════════════════════════════
+   SLIDE 7 — CRM & LEDGER
+══════════════════════════════════════════════ */
+.crm-layout {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+  width: 100%; max-width: 840px;
+}
+.crm-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; overflow: hidden;
+}
+.crm-header {
+  background: var(--surface2); border-bottom: 1px solid var(--border);
+  padding: 12px 16px; display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 700; color: var(--muted2);
+}
+.crm-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 16px; border-bottom: 1px solid rgba(30,58,95,.3);
+  font-size: 12px;
+}
+.crm-item:last-child { border-bottom: none; }
+.crm-avatar {
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; color: #fff; flex-shrink: 0;
+}
+.crm-info { flex: 1; margin-left: 10px; }
+.crm-name { font-weight: 600; color: var(--text); font-size: 11px; }
+.crm-due  { font-size: 10px; color: var(--muted); }
+.crm-amount { font-weight: 700; font-size: 12px; font-variant-numeric: tabular-nums; }
+.crm-amount.positive { color: var(--green); }
+.crm-amount.negative { color: var(--red);   }
+
+/* ════════════════════════════════════════════
+   SLIDE 8 — SECURITY
+══════════════════════════════════════════════ */
+.roles-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+  width: 100%; max-width: 820px;
+}
+.role-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 20px 16px;
+  text-align: center;
+}
+.role-icon { font-size: 2rem; margin-bottom: 10px; }
+.role-name { font-size: 13px; font-weight: 800; margin-bottom: 4px; }
+.role-sub  { font-size: 10px; color: var(--muted); margin-bottom: 14px; }
+.perm-list { display: flex; flex-direction: column; gap: 5px; text-align: left; }
+.perm-item { display: flex; align-items: center; gap: 6px; font-size: 10px; color: var(--muted2); }
+.perm-check { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 8px; }
+.perm-check.yes { background: var(--green);  color: #fff; }
+.perm-check.no  { background: var(--surface2); color: var(--muted); border: 1px solid var(--border); }
+
+/* ════════════════════════════════════════════
+   SLIDE 9 — API
+══════════════════════════════════════════════ */
+.api-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 24px;
+  width: 100%; max-width: 640px;
+  font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+}
+.api-line { font-size: 12px; line-height: 2; display: flex; gap: 12px; align-items: center; }
+.api-method { font-size: 10px; font-weight: 800; padding: 2px 7px; border-radius: 4px; flex-shrink: 0; }
+.api-method.get { background: rgba(16,185,129,.2); color: var(--green); }
+.api-url { color: var(--blue); }
+.api-desc { color: var(--muted); font-size: 11px; }
+.api-divider { height: 1px; background: var(--border); margin: 8px 0; }
+.token-box {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 12px;
+  font-size: 11px; color: var(--muted2); margin-top: 12px;
+}
+.token-key { color: var(--amber); }
+.token-val { color: var(--green); }
+
+/* ════════════════════════════════════════════
+   SLIDE 10 — CLOSING CTA
+══════════════════════════════════════════════ */
+#s10 { text-align: center; }
+.cta-steps {
+  display: flex; gap: 0; align-items: flex-start; margin: 28px auto 0;
+  max-width: 680px; justify-content: center;
+}
+.cta-step {
+  flex: 1; text-align: center; padding: 0 16px; position: relative;
+}
+.cta-step::after {
+  content: '';
+  position: absolute; top: 20px; right: 0;
+  width: 100%; height: 1px;
+  background: var(--border);
+}
+.cta-step:last-child::after { display: none; }
+.cta-step-num {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: var(--blue); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 14px; margin: 0 auto 10px;
+  position: relative; z-index: 1;
+  box-shadow: 0 0 20px rgba(59,130,246,.4);
+}
+.cta-step-label { font-size: 11px; color: var(--muted2); font-weight: 600; }
+.cta-code {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; padding: 16px 24px;
+  font-family: monospace; font-size: 12px; color: var(--green);
+  text-align: left; max-width: 480px; margin: 24px auto 0;
+  line-height: 1.9;
+}
+
+</style>
+</head>
+<body>
+<div id="stage">
+
+  <!-- ══ SLIDE 1 — COVER ══════════════════════════════════ -->
+  <div class="slide active" id="s1">
+    <div class="glow glow-blue"  style="top:-200px;left:-100px"></div>
+    <div class="glow glow-purple" style="bottom:-200px;right:-100px"></div>
+    <div class="anim anim-1 cover-badge">
+      <span>📦</span> Complete Business Solution
+    </div>
+    <div class="anim anim-2 cover-title">
+      Inventory &amp;<br><span>Point of Sale</span>
+    </div>
+    <div class="anim anim-3 cover-sub">
+      Everything your business needs — stock, sales, finance, reports,<br>
+      CRM, and multi-branch management. One system.
+    </div>
+    <div class="anim anim-4 pill-row">
+      <span class="pill">🛒 POS</span>
+      <span class="pill">📦 FIFO Stock</span>
+      <span class="pill">💰 Finance</span>
+      <span class="pill">📊 P&amp;L Reports</span>
+      <span class="pill">🛡️ RBAC</span>
+      <span class="pill">🔌 REST API</span>
+      <span class="pill">🖨️ Thermal Print</span>
+      <span class="pill">📱 SMS</span>
+    </div>
+  </div>
+
+  <!-- ══ SLIDE 2 — DASHBOARD ══════════════════════════════ -->
+  <div class="slide" id="s2">
+    <div class="glow glow-blue" style="top:-300px;right:-200px;opacity:.1"></div>
+    <div class="anim anim-1 slide-eyebrow">Dashboard</div>
+    <div class="anim anim-2 slide-headline">Real-time business overview</div>
+    <div class="anim anim-3 slide-desc">Every KPI at a glance — today's revenue, monthly trends, low-stock alerts, and top-selling categories.</div>
+
+    <div class="anim anim-3 stat-row">
+      <div class="stat-card green">
+        <div class="label">Today's Sales</div>
+        <div class="value">৳84,500</div>
+        <div class="sub">↑ 12% from yesterday</div>
+      </div>
+      <div class="stat-card blue">
+        <div class="label">Month Sales</div>
+        <div class="value">৳2.4M</div>
+        <div class="sub">Running total</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Products</div>
+        <div class="value">1,284</div>
+        <div class="sub">Across 24 categories</div>
+      </div>
+      <div class="stat-card amber">
+        <div class="label">Low Stock</div>
+        <div class="value">17</div>
+        <div class="sub">Need reorder</div>
+      </div>
+    </div>
+
+    <div class="anim anim-4 chart-row">
+      <div class="chart-box">
+        <div class="ch-title">7-Day Sales Trend</div>
+        <div class="bar-chart">
+          <div class="bar" style="height:45%"></div>
+          <div class="bar" style="height:60%"></div>
+          <div class="bar" style="height:38%"></div>
+          <div class="bar" style="height:72%"></div>
+          <div class="bar" style="height:55%"></div>
+          <div class="bar" style="height:80%"></div>
+          <div class="bar highlight" style="height:95%"></div>
+        </div>
+      </div>
+      <div class="chart-box">
+        <div class="ch-title">Top Categories</div>
+        <div class="donut-wrap">
+          <div class="donut"></div>
+          <div class="legend">
+            <div class="legend-item"><div class="legend-dot" style="background:var(--blue)"></div>Electronics 38%</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div>Mobile 24%</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--amber)"></div>Accessories 13%</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--purple)"></div>Others 25%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SLIDE 3 — POS ════════════════════════════════════ -->
+  <div class="slide" id="s3">
+    <div class="glow glow-green" style="top:-150px;left:-150px;opacity:.08"></div>
+    <div class="anim anim-1 slide-eyebrow">Point of Sale</div>
+    <div class="anim anim-2 slide-headline">Scan. Sell. Done in seconds.</div>
+
+    <div class="anim anim-3 pos-layout">
+      <div class="pos-grid">
+        <div class="pos-search">
+          <span>🔍</span> Search by name, SKU, barcode…<div class="cursor"></div>
+        </div>
+        <div class="product-grid">
+          <div class="product-tile selected"><div class="pt-icon">📱</div><div class="pt-name">iPhone 15</div><div class="pt-price">৳1,25,000</div></div>
+          <div class="product-tile"><div class="pt-icon">💻</div><div class="pt-name">Laptop Pro</div><div class="pt-price">৳85,000</div></div>
+          <div class="product-tile"><div class="pt-icon">🎧</div><div class="pt-name">AirPods</div><div class="pt-price">৳18,000</div></div>
+          <div class="product-tile"><div class="pt-icon">⌚</div><div class="pt-name">Watch S9</div><div class="pt-price">৳42,000</div></div>
+          <div class="product-tile"><div class="pt-icon">📷</div><div class="pt-name">Camera</div><div class="pt-price">৳65,000</div></div>
+          <div class="product-tile"><div class="pt-icon">🖨️</div><div class="pt-name">Printer</div><div class="pt-price">৳12,000</div></div>
+          <div class="product-tile"><div class="pt-icon">🔋</div><div class="pt-name">Power Bank</div><div class="pt-price">৳3,500</div></div>
+          <div class="product-tile"><div class="pt-icon">🖥️</div><div class="pt-name">Monitor</div><div class="pt-price">৳32,000</div></div>
+        </div>
+      </div>
+      <div class="cart-panel">
+        <div class="cart-title">🛒 Cart — 2 items</div>
+        <div class="cart-item"><div><div class="ci-name">iPhone 15</div><div style="font-size:10px;color:var(--muted)">Qty: 1 · ৳1,25,000</div></div><div class="ci-price">৳1,25,000</div></div>
+        <div class="cart-item"><div><div class="ci-name">AirPods Pro</div><div style="font-size:10px;color:var(--muted)">Qty: 1 · ৳18,000</div></div><div class="ci-price">৳18,000</div></div>
+        <div class="cart-divider"></div>
+        <div class="cart-total"><span class="ct-label">Discount</span><span class="ct-val" style="color:var(--amber)">−৳5,000</span></div>
+        <div class="cart-total"><span class="ct-label">Total</span><span class="ct-val" style="font-size:1.2rem;color:var(--green)">৳1,38,000</span></div>
+        <div class="cart-divider"></div>
+        <div class="cart-title" style="margin-bottom:6px">Payment Method</div>
+        <div class="pay-methods">
+          <div class="pay-btn active">Cash</div>
+          <div class="pay-btn">Card</div>
+          <div class="pay-btn">Mobile</div>
+          <div class="pay-btn">Due</div>
+        </div>
+        <div class="btn-complete">✓ Complete Sale</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SLIDE 4 — INVENTORY ══════════════════════════════ -->
+  <div class="slide" id="s4">
+    <div class="anim anim-1 slide-eyebrow">Inventory</div>
+    <div class="anim anim-2 slide-headline">FIFO stock — always accurate</div>
+    <div class="anim anim-3 slide-desc">Every purchase creates a cost batch. Oldest stock sells first — your profit margin is always correct, even when prices change.</div>
+
+    <div class="anim anim-4 table-mock">
+      <table>
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>SKU</th>
+            <th>Stock</th>
+            <th>FIFO Batch</th>
+            <th>Unit Cost</th>
+            <th>Stock Value</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>iPhone 15 Pro</strong></td>
+            <td style="font-family:monospace">IPH-15P</td>
+            <td><strong>42</strong></td>
+            <td><div class="fifo-bar"><div class="fifo-used" style="width:70%"></div><div class="fifo-left" style="width:30%"></div></div></td>
+            <td>৳1,10,000</td>
+            <td><strong style="color:var(--green)">৳46.2L</strong></td>
+            <td><span class="badge ok">✓ In Stock</span></td>
+          </tr>
+          <tr>
+            <td><strong>Samsung S24</strong></td>
+            <td style="font-family:monospace">SAM-S24</td>
+            <td><strong>18</strong></td>
+            <td><div class="fifo-bar"><div class="fifo-used" style="width:40%"></div><div class="fifo-left" style="width:60%"></div></div></td>
+            <td>৳72,000</td>
+            <td><strong style="color:var(--green)">৳12.96L</strong></td>
+            <td><span class="badge ok">✓ In Stock</span></td>
+          </tr>
+          <tr>
+            <td><strong>AirPods Pro 2</strong></td>
+            <td style="font-family:monospace">AIR-P2</td>
+            <td><strong>5</strong></td>
+            <td><div class="fifo-bar"><div class="fifo-used" style="width:90%"></div><div class="fifo-left" style="width:10%"></div></div></td>
+            <td>৳14,500</td>
+            <td><strong style="color:var(--amber)">৳72,500</strong></td>
+            <td><span class="badge warn">⚠ Low Stock</span></td>
+          </tr>
+          <tr>
+            <td><strong>USB-C Hub 7-in-1</strong></td>
+            <td style="font-family:monospace">USB-7P</td>
+            <td><strong>0</strong></td>
+            <td><div class="fifo-bar"><div class="fifo-used" style="width:100%"></div></div></td>
+            <td>৳2,800</td>
+            <td><strong>৳0</strong></td>
+            <td><span class="badge danger">✗ Out of Stock</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══ SLIDE 5 — FINANCE ════════════════════════════════ -->
+  <div class="slide" id="s5">
+    <div class="glow glow-purple" style="bottom:-200px;left:-100px;opacity:.1"></div>
+    <div class="anim anim-1 slide-eyebrow">Finance</div>
+    <div class="anim anim-2 slide-headline">Due collection, EMI &amp; Expenses</div>
+
+    <div class="anim anim-3 finance-grid">
+      <div class="finance-card">
+        <div class="fc-icon">💳</div>
+        <div class="fc-title">Due Collection</div>
+        <div class="fc-desc">Track partial payments per sale or purchase. Collect anytime — balance auto-updates.</div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:6px">Customer: Rahim Traders</div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:8px">
+          <span style="color:var(--muted2)">Total</span><span style="color:var(--text);font-weight:700">৳1,80,000</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:8px">
+          <span style="color:var(--muted2)">Paid</span><span style="color:var(--green);font-weight:700">৳1,20,000</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" style="width:67%;background:var(--green)"></div></div>
+        <div style="font-size:11px;color:var(--red);font-weight:700;margin-top:6px;text-align:right">Due ৳60,000</div>
+      </div>
+      <div class="finance-card">
+        <div class="fc-icon">📅</div>
+        <div class="fc-title">Installment / EMI</div>
+        <div class="fc-desc">Monthly payment plans with due dates. Overdue installments highlighted in red.</div>
+        <div class="emi-row"><span class="er-month">Jun 2026</span><span class="er-amount">৳15,000</span><span class="badge ok" style="font-size:9px">Paid</span></div>
+        <div class="emi-row"><span class="er-month">Jul 2026</span><span class="er-amount">৳15,000</span><span class="badge warn" style="font-size:9px">Due</span></div>
+        <div class="emi-row"><span class="er-month">Aug 2026</span><span class="er-amount">৳15,000</span><span class="badge" style="font-size:9px;background:var(--surface2);color:var(--muted)">Pending</span></div>
+        <div class="emi-row"><span class="er-month">Sep 2026</span><span class="er-amount">৳15,000</span><span class="badge" style="font-size:9px;background:var(--surface2);color:var(--muted)">Pending</span></div>
+      </div>
+      <div class="finance-card">
+        <div class="fc-icon">🏦</div>
+        <div class="fc-title">Cash Register</div>
+        <div class="fc-desc">Shift open/close with opening &amp; closing balance. Each cashier is accountable.</div>
+        <div style="margin-top:8px">
+          <div style="display:flex;justify-content:space-between;font-size:11px;padding:7px 0;border-bottom:1px solid rgba(30,58,95,.5)"><span style="color:var(--muted)">Opening Balance</span><span style="font-weight:700">৳10,000</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:11px;padding:7px 0;border-bottom:1px solid rgba(30,58,95,.5)"><span style="color:var(--muted)">Cash Sales</span><span style="font-weight:700;color:var(--green)">+৳74,500</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:11px;padding:7px 0"><span style="color:var(--muted)">Closing Balance</span><span style="font-weight:800;font-size:13px;color:var(--green)">৳84,500</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SLIDE 6 — P&L ════════════════════════════════════ -->
+  <div class="slide" id="s6">
+    <div class="glow glow-green" style="top:-100px;right:-100px;opacity:.08"></div>
+    <div class="anim anim-1 slide-eyebrow">Reports</div>
+    <div class="anim anim-2 slide-headline">Profit &amp; Loss — one click</div>
+    <div class="anim anim-3 slide-desc">Revenue minus cost of goods, returns, and expenses. Your actual net profit, calculated automatically.</div>
+
+    <div class="anim anim-4 pl-card">
+      <div class="pl-row section-head"><span class="pr-label">Income</span></div>
+      <div class="pl-row"><span class="pr-label">Total Sales Revenue</span><span class="pr-val" style="color:var(--green)">৳24,85,000</span></div>
+      <div class="pl-row"><span class="pr-label">Customer Returns</span><span class="pr-val" style="color:var(--red)">−৳45,000</span></div>
+      <div class="pl-row"><span class="pr-label" style="font-weight:700;color:var(--text)">Net Revenue</span><span class="pr-val">৳24,40,000</span></div>
+
+      <div class="pl-row section-head"><span class="pr-label">Cost of Goods</span></div>
+      <div class="pl-row"><span class="pr-label">COGS (FIFO)</span><span class="pr-val" style="color:var(--amber)">−৳16,20,000</span></div>
+      <div class="pl-row"><span class="pr-label" style="font-weight:700;color:var(--text)">Gross Profit</span><span class="pr-val">৳8,20,000</span></div>
+
+      <div class="pl-row section-head"><span class="pr-label">Operating Expenses</span></div>
+      <div class="pl-row"><span class="pr-label">Rent, Salary, Utilities</span><span class="pr-val" style="color:var(--red)">−৳1,85,000</span></div>
+
+      <div class="pl-row total-row">
+        <span class="pr-label">🏆 Net Profit</span>
+        <span class="pr-val">৳6,35,000</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SLIDE 7 — CRM ════════════════════════════════════ -->
+  <div class="slide" id="s7">
+    <div class="anim anim-1 slide-eyebrow">CRM</div>
+    <div class="anim anim-2 slide-headline">Customers &amp; Supplier Ledgers</div>
+    <div class="anim anim-3 slide-desc">Complete transaction history, outstanding dues, and loyalty points for every customer and supplier.</div>
+
+    <div class="anim anim-4 crm-layout">
+      <div class="crm-card">
+        <div class="crm-header">👤 Customers — Outstanding Dues</div>
+        <div class="crm-item">
+          <div class="crm-avatar" style="background:#3b82f6">RK</div>
+          <div class="crm-info"><div class="crm-name">Rahim &amp; Co.</div><div class="crm-due">7 invoices · Last: 2 days ago</div></div>
+          <div class="crm-amount negative">৳60,000</div>
+        </div>
+        <div class="crm-item">
+          <div class="crm-avatar" style="background:#8b5cf6">MH</div>
+          <div class="crm-info"><div class="crm-name">Minhaz Hossain</div><div class="crm-due">3 invoices · Last: 1 week ago</div></div>
+          <div class="crm-amount negative">৳18,500</div>
+        </div>
+        <div class="crm-item">
+          <div class="crm-avatar" style="background:#10b981">ST</div>
+          <div class="crm-info"><div class="crm-name">Star Tech Ltd.</div><div class="crm-due">12 invoices · Fully paid</div></div>
+          <div class="crm-amount positive">✓ Clear</div>
+        </div>
+      </div>
+      <div class="crm-card">
+        <div class="crm-header">🚚 Suppliers — Payable</div>
+        <div class="crm-item">
+          <div class="crm-avatar" style="background:#f59e0b">AP</div>
+          <div class="crm-info"><div class="crm-name">Apple BD Importer</div><div class="crm-due">4 purchases · Due in 5 days</div></div>
+          <div class="crm-amount negative">৳3,40,000</div>
+        </div>
+        <div class="crm-item">
+          <div class="crm-avatar" style="background:#06b6d4">SM</div>
+          <div class="crm-info"><div class="crm-name">Samsung Dist.</div><div class="crm-due">6 purchases · Overdue</div></div>
+          <div class="crm-amount negative" style="color:#ef4444">৳1,20,000</div>
+        </div>
+        <div class="crm-item">
+          <div class="crm-avatar" style="background:#10b981">LG</div>
+          <div class="crm-info"><div class="crm-name">LG Electronics</div><div class="crm-due">2 purchases · Paid</div></div>
+          <div class="crm-amount positive">✓ Clear</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SLIDE 8 — SECURITY ═══════════════════════════════ -->
+  <div class="slide" id="s8">
+    <div class="glow glow-purple" style="top:-200px;right:-200px;opacity:.1"></div>
+    <div class="anim anim-1 slide-eyebrow">Access Control</div>
+    <div class="anim anim-2 slide-headline">Role-based permissions</div>
+    <div class="anim anim-3 slide-desc">4 built-in roles. Every sidebar item, every action — controlled by Spatie permissions.</div>
+
+    <div class="anim anim-4 roles-grid">
+      <div class="role-card" style="border-color:var(--amber)">
+        <div class="role-icon">🌟</div>
+        <div class="role-name" style="color:var(--amber)">Super Admin</div>
+        <div class="role-sub">Full system access</div>
+        <div class="perm-list">
+          <div class="perm-item"><div class="perm-check yes">✓</div>Dashboard</div>
+          <div class="perm-item"><div class="perm-check yes">✓</div>POS &amp; Sales</div>
+          <div class="perm-item"><div class="perm-check yes">✓</div>Inventory</div>
+          <div class="perm-item"><div class="perm-check yes">✓</div>Reports</div>
+          <div class="perm-item"><div class="perm-check yes">✓</div>Users &amp; Roles</div>
+          <div class="perm-item"><div class="perm-check yes">✓</div>Settings</div>
+        </div>
+      </div>
+      <div class="role-card" style="border-color:var(--blue)">
+        <div class="role-icon">👔</div>
+        <div class="role-name" style="color:var(--blue)">Manager</div>
+        <div class="role-sub">All except user mgmt</div>
+        <div class="perm-list">
+          <div class="perm-item"><div class="perm-check yes">✓</div>Dashboard</div>
+          <div class="perm-item"><div class="perm-check yes">✓</div>POS &amp; Sales</div>
+          <div class="perm-item"><div class="perm-check yes">✓</div>Inventory</div>
+          <div class="perm-item"><div class="perm-check yes">✓</div>Reports</div>
+          <div class="perm-item"><div class="perm-check no">—</div>Users &amp; Roles</div>
+          <div class="perm-item"><div class="perm-check yes">✓</div>Settings</div>
+        </div>
+      </div>
+      <div class="role-card" style="border-color:var(--green)">
+        <div class="role-icon">📦</div>
+        <div class="role-name" style="color:var(--green)">Storekeeper</div>
+        <div class="role-sub">Stock &amp; purchases</div>
+        <div class="perm-list">
+          <div class="perm-item"><div class="perm-check yes">✓</div>Dashboard</div>
+          <div class="perm-item"><div class="perm-check no">—</div>POS &amp; Sales</div>
+          <div class="perm-item"><div class="perm-check yes">✓</div>Inventory</div>
+          <div class="perm-item"><div class="perm-check no">—</div>Reports</div>
+          <div class="perm-item"><div class="perm-check no">—</div>Users &amp; Roles</div>
+          <div class="perm-item"><div class="perm-check no">—</div>Settings</div>
+        </div>
+      </div>
+      <div class="role-card" style="border-color:var(--purple)">
+        <div class="role-icon">🛒</div>
+        <div class="role-name" style="color:var(--purple)">Salesperson</div>
+        <div class="role-sub">POS &amp; customers only</div>
+        <div class="perm-list">
+          <div class="perm-item"><div class="perm-check yes">✓</div>Dashboard</div>
+          <div class="perm-item"><div class="perm-check yes">✓</div>POS &amp; Sales</div>
+          <div class="perm-item"><div class="perm-check no">—</div>Inventory</div>
+          <div class="perm-item"><div class="perm-check no">—</div>Reports</div>
+          <div class="perm-item"><div class="perm-check no">—</div>Users &amp; Roles</div>
+          <div class="perm-item"><div class="perm-check no">—</div>Settings</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SLIDE 9 — API ════════════════════════════════════ -->
+  <div class="slide" id="s9">
+    <div class="anim anim-1 slide-eyebrow">E-commerce API</div>
+    <div class="anim anim-2 slide-headline">Connect your online store</div>
+    <div class="anim anim-3 slide-desc">REST API v1 secured with Laravel Sanctum. Sync products, categories, and live stock to any platform.</div>
+
+    <div class="anim anim-4 api-card">
+      <div class="api-line"><span class="api-method get">GET</span><span class="api-url">/api/v1/products</span><span class="api-desc">Paginated, filterable product list</span></div>
+      <div class="api-divider"></div>
+      <div class="api-line"><span class="api-method get">GET</span><span class="api-url">/api/v1/products/{id}</span><span class="api-desc">Single product with stock</span></div>
+      <div class="api-divider"></div>
+      <div class="api-line"><span class="api-method get">GET</span><span class="api-url">/api/v1/products/{id}/stock</span><span class="api-desc">Real-time availability check</span></div>
+      <div class="api-divider"></div>
+      <div class="api-line"><span class="api-method get">GET</span><span class="api-url">/api/v1/categories</span><span class="api-desc">Full category tree (nested)</span></div>
+      <div class="token-box">
+        <span class="token-key">Authorization: </span><span class="token-val">Bearer eyJ0eXAiOiJKV1Qi…</span><br>
+        <span class="token-key">Content-Type:  </span><span class="token-val">application/json</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SLIDE 10 — CLOSING ═══════════════════════════════ -->
+  <div class="slide" id="s10">
+    <div class="glow glow-blue"   style="top:-100px;left:50%;transform:translateX(-50%);opacity:.12"></div>
+    <div class="anim anim-1 cover-badge">🚀 Get Started in 5 minutes</div>
+    <div class="anim anim-2 cover-title" style="font-size:clamp(2rem,5vw,3.5rem)">
+      Your business,<br><span>fully managed.</span>
+    </div>
+    <div class="anim anim-3 cover-sub">Install locally with WAMP/Laragon or deploy to any PHP 8.1+ server.</div>
+
+    <div class="anim anim-4 cta-steps">
+      <div class="cta-step"><div class="cta-step-num">1</div><div class="cta-step-label">composer install</div></div>
+      <div class="cta-step"><div class="cta-step-num">2</div><div class="cta-step-label">php artisan migrate<br>--seed</div></div>
+      <div class="cta-step"><div class="cta-step-num">3</div><div class="cta-step-label">php artisan serve</div></div>
+      <div class="cta-step"><div class="cta-step-num">4</div><div class="cta-step-label">Open /admin<br>and log in</div></div>
+    </div>
+
+    <div class="anim anim-5 cta-code">
+      <span style="color:var(--muted)">$</span> git clone &lt;repo-url&gt; &amp;&amp; cd inventory-management<br>
+      <span style="color:var(--muted)">$</span> composer install &amp;&amp; cp .env.example .env<br>
+      <span style="color:var(--muted)">$</span> php artisan key:generate &amp;&amp; migrate --seed<br>
+      <span style="color:var(--muted)">$</span> php artisan serve <span style="color:var(--blue)"># → http://localhost:8000/admin</span>
+    </div>
+  </div>
+
+  <!-- ══ VIDEO CONTROLS ══════════════════════════════════ -->
+  <div id="controls">
+    <button class="ctrl-btn" id="btn-prev" title="Previous">&#9664;</button>
+    <button class="ctrl-btn" id="btn-play" title="Pause">&#9646;&#9646;</button>
+    <button class="ctrl-btn" id="btn-next" title="Next">&#9654;</button>
+    <div id="progress-track">
+      <div id="progress-fill"></div>
+    </div>
+    <div id="dots"></div>
+    <span id="slide-counter">1 / 10</span>
+  </div>
+
+</div>
+
+<script>
+const SLIDES     = document.querySelectorAll('.slide');
+const TOTAL      = SLIDES.length;
+const SLIDE_MS   = 5500;
+const PROGRESS   = document.getElementById('progress-fill');
+const COUNTER    = document.getElementById('slide-counter');
+const DOTS_WRAP  = document.getElementById('dots');
+const BTN_PLAY   = document.getElementById('btn-play');
+
+let current  = 0;
+let playing  = true;
+let timer    = null;
+let progTimer= null;
+let progStart= null;
+let progVal  = 0;
+
+// Build dots
+SLIDES.forEach((_, i) => {
+  const d = document.createElement('div');
+  d.className = 'dot' + (i === 0 ? ' active' : '');
+  d.addEventListener('click', () => goTo(i));
+  DOTS_WRAP.appendChild(d);
+});
+
+function getDots() { return DOTS_WRAP.querySelectorAll('.dot'); }
+
+function goTo(idx, resetProg = true) {
+  SLIDES[current].classList.remove('active');
+  getDots()[current].classList.remove('active');
+  current = (idx + TOTAL) % TOTAL;
+  SLIDES[current].classList.add('active');
+  getDots()[current].classList.add('active');
+  COUNTER.textContent = (current + 1) + ' / ' + TOTAL;
+  if (resetProg) startProgress();
+}
+
+function startProgress() {
+  clearInterval(progTimer);
+  progVal = 0;
+  progStart = Date.now();
+  PROGRESS.style.width = '0%';
+
+  if (!playing) return;
+
+  progTimer = setInterval(() => {
+    const elapsed = Date.now() - progStart;
+    progVal = Math.min((elapsed / SLIDE_MS) * 100, 100);
+    PROGRESS.style.width = progVal + '%';
+    if (elapsed >= SLIDE_MS) {
+      clearInterval(progTimer);
+      goTo(current + 1);
+    }
+  }, 40);
+}
+
+function togglePlay() {
+  playing = !playing;
+  BTN_PLAY.innerHTML = playing ? '&#9646;&#9646;' : '&#9654;';
+  if (playing) {
+    progStart = Date.now() - (progVal / 100 * SLIDE_MS);
+    progTimer = setInterval(() => {
+      const elapsed = Date.now() - progStart;
+      progVal = Math.min((elapsed / SLIDE_MS) * 100, 100);
+      PROGRESS.style.width = progVal + '%';
+      if (elapsed >= SLIDE_MS) { clearInterval(progTimer); goTo(current + 1); }
+    }, 40);
+  } else {
+    clearInterval(progTimer);
+  }
+}
+
+document.getElementById('btn-play').addEventListener('click', togglePlay);
+document.getElementById('btn-prev').addEventListener('click', () => { playing && clearInterval(progTimer); goTo(current - 1); if (!playing) PROGRESS.style.width = '0%'; });
+document.getElementById('btn-next').addEventListener('click', () => { playing && clearInterval(progTimer); goTo(current + 1); if (!playing) PROGRESS.style.width = '0%'; });
+
+document.getElementById('progress-track').addEventListener('click', function(e) {
+  const rect = this.getBoundingClientRect();
+  const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+  clearInterval(progTimer);
+  progVal = ratio * 100;
+  PROGRESS.style.width = progVal + '%';
+  progStart = Date.now() - ratio * SLIDE_MS;
+  if (playing) {
+    progTimer = setInterval(() => {
+      const elapsed = Date.now() - progStart;
+      progVal = Math.min((elapsed / SLIDE_MS) * 100, 100);
+      PROGRESS.style.width = progVal + '%';
+      if (elapsed >= SLIDE_MS) { clearInterval(progTimer); goTo(current + 1); }
+    }, 40);
+  }
+});
+
+// Keyboard
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight') document.getElementById('btn-next').click();
+  if (e.key === 'ArrowLeft')  document.getElementById('btn-prev').click();
+  if (e.key === ' ') { e.preventDefault(); togglePlay(); }
+});
+
+// Start
+startProgress();
+</script>
+</body>
+</html>

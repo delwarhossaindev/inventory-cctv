@@ -1,0 +1,497 @@
+# JM INTERNATIONAL — User Manual
+
+A screen-by-screen guide to the CCTV inventory and point-of-sale system.
+
+Every screenshot below was captured from this application running locally against the seeded CCTV catalog (63 products, 30 categories). Screens that depend on trading history — sales, purchases, payments, returns, most reports — are shown in their **empty state**, because the database has stock but no transactions yet. The layout and controls are exactly what you will see once you start selling.
+
+---
+
+## Contents
+
+| # | Section | # | Section |
+|---|---------|---|---------|
+| 1 | [Signing in](#1-signing-in) | 8 | [Purchases](#8-purchases) |
+| 2 | [Getting around](#2-getting-around) | 9 | [Money in and out](#9-money-in-and-out) |
+| 3 | [Dashboard](#3-dashboard) | 10 | [Reports](#10-reports) |
+| 4 | [Products](#4-products) | 11 | [Accounting](#11-accounting) |
+| 5 | [Categories & units](#5-categories--units) | 12 | [Contacts](#12-contacts) |
+| 6 | [Stock](#6-stock) | 13 | [Users & permissions](#13-users--permissions) |
+| 7 | [Selling](#7-selling) | 14 | [Administration](#14-administration) |
+
+Appendices: [How FIFO costing works](#appendix-a--how-fifo-costing-works) · [Barcodes](#appendix-b--barcodes) · [Troubleshooting](#appendix-c--troubleshooting)
+
+---
+
+## 1. Signing in
+
+![Login screen](screenshots/01-login.png)
+
+Open the application in a browser and sign in with your email and password.
+
+The system ships with two accounts:
+
+| Role | Email | Password |
+|------|-------|----------|
+| Super Admin | `admin@example.com` | `password` |
+| Salesperson | `cashier@example.com` | `password` |
+
+> **Change both passwords before the shop goes live.** Anyone who knows these defaults can open your stock, prices and sales history. Change them from **Profile → Change Password** (section 14).
+
+Every sign-in is recorded — user, time, IP address and browser — under **Administration → Login History**.
+
+---
+
+## 2. Getting around
+
+The screen is split into three fixed parts.
+
+**The sidebar (left)** holds every screen, grouped into collapsible sections. Click a section header to open or close it:
+
+| Group | What is inside |
+|-------|----------------|
+| *(top, always open)* | Dashboard · POS · POS 2 |
+| **Catalog** | Products · Categories · Stock · Batches |
+| **Transactions** | Quotations · Purchases · Sales · Returns · Payments · Expenses · Installments · Cash Register |
+| **Reports** | Sales & Profit · Daily Summary · Top Products · Purchases · Stock Valuation · Profit & Loss |
+| **Accounting** | Day Book · Trial Balance |
+| **Contacts** | Suppliers · Customers |
+| **Settings** | Unit · Main Category · Category · Sub Category |
+| **Access Control** | Users · Roles · Permissions |
+| **Administration** | Branches · Login History · Activity Log · Settings · User Manual |
+
+Menu items you do not have permission for are hidden, and a group with nothing left in it disappears entirely. So a salesperson sees a much shorter sidebar than an administrator — that is expected, not a fault.
+
+**The top bar** carries a global search box (products, SKU, suppliers), a moon/sun button that switches between light and dark themes, a bell that jumps to stock alerts, and your account menu.
+
+**The content area** is everything else.
+
+Two conveniences worth knowing:
+
+- **Dark mode is remembered.** The theme you pick is stored in your browser, so it survives a logout and applies only to you.
+- **Long lists load as you scroll.** Tables such as Products and Stock fetch the next page automatically when you reach the bottom — there are no page-number buttons to click.
+
+---
+
+## 3. Dashboard
+
+![Dashboard](screenshots/02-dashboard.png)
+
+The landing screen after sign-in. Four figures across the top:
+
+| Card | Meaning |
+|------|---------|
+| **Total products** | How many products exist, and across how many categories |
+| **Stock value** | What the goods on your shelves cost you — valued at purchase price, not selling price |
+| **Today's sales** | Revenue and invoice count for today only |
+| **Low stock** | Products at or below their alert quantity |
+
+Below that: a **Stock movement** line chart of the last seven days of sales, a **Top categories** breakdown by sales value, a **Low stock alerts** panel listing what needs restocking, and **Recent sales** with a **New sale** button that drops you straight into the POS.
+
+In the screenshot the charts are flat and the panels say "No sales data yet" — that is a fresh catalog with no trading history, not an error.
+
+---
+
+## 4. Products
+
+### The product list
+
+![Product list](screenshots/03-products-list.png)
+
+Every product, with its photo, model number, three-level category path and status. Filter with the search box (name, model or slug), the **Main Category** dropdown and the **Status** dropdown; **Reset** clears all three.
+
+The buttons on the right open the bulk tools, covered below. The pencil edits a product; the red bin deletes it.
+
+### Product details
+
+![Product detail](screenshots/04-product-detail.png)
+
+Click a product name to see everything about it on one page: photo, identifiers (model, SKU, barcode, category path, created and updated dates), a printable barcode label, and the written content — short description, description, advantages and specifications.
+
+Further down are the **stock batches**: every consignment received, with its batch number, received date, quantity, how much remains and the unit cost paid. This is the FIFO ledger — see [Appendix A](#appendix-a--how-fifo-costing-works).
+
+### Adding and editing a product
+
+![Product form](screenshots/05-product-create.png)
+
+![Editing a product](screenshots/06-product-edit.png)
+
+The form is grouped into panels. The important fields:
+
+| Field | Notes |
+|-------|-------|
+| **Name, model, SKU** | Name is required. SKU is your own code — the seeded catalog uses patterns like `IPC-BL-001` |
+| **Purchase / sale price** | What you pay and what you charge. Both feed profit reporting |
+| **Opening stock** | Only on a new product. Afterwards stock changes through purchases, sales and adjustments — the field becomes a read-only display with an **Adjust** link |
+| **Alert quantity** | The low-stock threshold that drives dashboard warnings |
+| **Unit** | Free text — `pcs`, `box`, `roll`, `pack`, `set`, `yard` |
+| **Warranty (days)** | Copied onto every sale item, which sets its expiry date. `0` means no warranty |
+| **Image URL** | A web address, not an upload. A preview appears as you paste |
+| **Content fields** | Short description, description, advantages, specifications — rich-text editors, so lists and bold text are preserved |
+
+Barcodes are generated automatically (EAN-13) when a product is created; you do not type them.
+
+### Barcode labels
+
+![Barcode labels](screenshots/07-product-labels.png)
+
+Select products and print price labels — A4 sheets or thermal-printer layouts. A product page also offers **Print Batch Labels**, which prints one label per stock batch so each consignment stays identifiable on the shelf.
+
+### Bulk pricing
+
+![Bulk pricing](screenshots/08-bulk-pricing.png)
+
+Change purchase and sale prices for many products on one screen instead of opening each product in turn. Useful after a supplier price revision.
+
+### Bulk import
+
+![Bulk import](screenshots/09-bulk-import.png)
+
+Upload a spreadsheet to create or update many products at once. Download the template first — it has the exact column headings the importer expects.
+
+---
+
+## 5. Categories & units
+
+### Categories
+
+![Categories](screenshots/10-categories.png)
+
+Categories are three levels deep: **Main Category → Category → Sub Category**. The seeded catalog uses this for `CCTV Camera → IP Camera → Bullet Camera`.
+
+The **Settings** group in the sidebar has shortcuts that open this same screen filtered to one level at a time, which is easier than scrolling the whole tree.
+
+A category cannot be deleted while products still point at it — move those products first.
+
+### Units
+
+![Units](screenshots/11-units.png)
+
+The measurement units offered when you add a product. Seeded with Piece, Box, Set, Pack, Roll and Yard; add your own as needed.
+
+---
+
+## 6. Stock
+
+### Stock overview
+
+![Stock](screenshots/20-stock.png)
+
+The working view of what you hold. Three totals across the top — **Total Items in Stock**, **Stock Value (at cost)** and **Low Stock Products** — then a row per product showing quantity, alert level, unit cost and total value.
+
+Tick **Low stock only** to see just what needs reordering. **Adjust** on any row opens the stock-correction form: add, subtract or set an exact quantity, with a note explaining why. Use it for breakage, theft, or a stocktake correction — never to record a sale or a purchase, which have their own screens.
+
+### Stock movements
+
+![Stock movements](screenshots/21-stock-movements.png)
+
+The audit trail. Every change to every product — purchase, sale, return, adjustment — with the quantity moved, the running balance afterwards, and what caused it. Nothing changes stock without leaving a line here.
+
+### Batches
+
+![Batches](screenshots/22-batches.png)
+
+Every consignment across all products, with received date, unit cost and remaining quantity. This is where you check what you actually paid for the units still on the shelf.
+
+---
+
+## 7. Selling
+
+### POS
+
+![Point of Sale](screenshots/12-pos.png)
+
+The main sales screen. The workflow:
+
+1. **Add products.** Either scan a barcode into the top field and press Enter, type in the search box, or click a product tile. Batch barcodes work too — they resolve to their product.
+2. **Adjust quantities** in the cart on the right. The system refuses to sell more than you have in stock.
+3. **Choose the customer.** Defaults to Walk-in Customer; the person-plus button registers a new customer without leaving the screen.
+4. **Enter discount, tax and the amount paid.** Subtotal, total and change/due recalculate as you type. If paid is less than the total, the difference is shown in red as **Due**.
+5. **Complete Sale.**
+
+The sale deducts stock using FIFO, sets warranty expiry on each item, awards loyalty points if enabled, and produces an invoice and a thermal receipt.
+
+### POS 2
+
+![POS 2](screenshots/13-pos2.png)
+
+An alternative till screen. Instead of showing every product as a tile, it starts empty and fills as you search — better when the catalog is large or the screen is small. The cart, totals and checkout behave identically.
+
+### Quotations
+
+![Quotations](screenshots/15-quotations.png)
+
+![Creating a quotation](screenshots/16-quotation-create.png)
+
+Price estimates for customers who have not committed yet — common for CCTV installation jobs quoted before the site survey. Add line items with quantity and unit price; the total calculates itself. Quotations export to PDF and do **not** touch stock.
+
+### Sales
+
+![Sales](screenshots/14-sales.png)
+
+Every completed invoice. Open one to see its lines, payment history and warranty dates, and to print the A4 invoice or the 58/80 mm thermal receipt.
+
+### Returns
+
+![Returns](screenshots/19-returns.png)
+
+Record goods coming back. A return restores the stock and reduces recorded revenue, so profit reporting stays honest.
+
+---
+
+## 8. Purchases
+
+![Purchases](screenshots/17-purchases.png)
+
+![Creating a purchase](screenshots/18-purchase-create.png)
+
+How stock enters the system. Choose the supplier, add products with quantity and unit cost, and save.
+
+Saving a purchase **creates a new FIFO batch** at the cost you entered — which is what makes later profit figures correct. If you type the wrong unit cost here, every margin calculation on those units will be wrong, so check it before saving.
+
+Purchases can be paid in full or in part; the balance shows as due against the supplier and is settled from **Payments**.
+
+---
+
+## 9. Money in and out
+
+### Payments
+
+![Payments](screenshots/25-payments.png)
+
+Collect money owed on credit sales and settle what you owe suppliers. Payments can be partial — a customer paying ৳5,000 against a ৳12,000 invoice leaves ৳7,000 outstanding, visible on their ledger.
+
+### Installments
+
+![Installments](screenshots/26-installments.png)
+
+Turn a sale into a monthly payment plan. The system generates the schedule with due dates and tracks which instalments are paid, due or overdue.
+
+### Expenses
+
+![Expenses](screenshots/27-expenses.png)
+
+Shop rent, electricity, staff salary, transport, tools. Each expense belongs to a category, and categories can be created as you go. Expenses are subtracted in the Profit & Loss report, so anything you leave out here overstates your profit.
+
+### Cash register
+
+![Cash register](screenshots/28-cash-register.png)
+
+Open a shift with a starting float and close it with a counted total. The system shows what it expected against what you counted, so a shortfall surfaces the same day rather than at month end.
+
+---
+
+## 10. Reports
+
+All six reports accept a date range and are printable.
+
+### Sales & Profit
+
+![Sales and profit report](screenshots/29-report-sales.png)
+
+Per-sale revenue, cost of goods sold and margin percentage. COGS comes from the FIFO batches actually consumed, not from the current purchase price — so the figure reflects what those specific units really cost.
+
+### Daily Summary
+
+![Daily summary](screenshots/30-report-daily.png)
+
+Day-by-day revenue. The quickest way to compare this week against last.
+
+### Top Products
+
+![Top products](screenshots/31-report-products.png)
+
+Best sellers ranked by quantity and by revenue. Worth checking before placing a supplier order — the two rankings often disagree, and the revenue one usually matters more.
+
+### Purchases
+
+![Purchases report](screenshots/33-report-purchases.png)
+
+What you bought over a period, by supplier.
+
+### Stock Valuation
+
+![Stock valuation](screenshots/32-report-stock.png)
+
+What your shelves are worth, summed from the remaining quantity in each FIFO batch at the cost actually paid for it.
+
+### Profit & Loss
+
+![Profit and loss](screenshots/34-report-profit-loss.png)
+
+The full statement:
+
+```
+Revenue − Cost of Goods Sold − Returns − Expenses = Net Profit
+```
+
+If this number looks wrong, the usual causes are unrecorded expenses or a purchase entered at the wrong unit cost.
+
+---
+
+## 11. Accounting
+
+### Day Book
+
+![Day book](screenshots/35-day-book.png)
+
+Every financial transaction in date order — sales, purchases, payments, expenses — in a single chronological list.
+
+### Trial Balance
+
+![Trial balance](screenshots/36-trial-balance.png)
+
+Debit and credit totals side by side as at a chosen date, with a Profit & Loss summary and balance-sheet position beneath. The two columns should agree.
+
+---
+
+## 12. Contacts
+
+### Suppliers
+
+![Suppliers](screenshots/24-suppliers.png)
+
+Who you buy from. Each supplier has a ledger: every purchase, the total billed, the total paid and the outstanding balance. The catalog seeds five distributors — Hikvision, Dahua, Uniview, TP-Link and Smart Technologies.
+
+### Customers
+
+![Customers](screenshots/23-customers.png)
+
+Who you sell to. Same ledger idea: purchase history, total, paid, outstanding — plus loyalty points and warranty records. **Walk-in Customer** is the default for counter sales, so you do not have to register everyone.
+
+---
+
+## 13. Users & permissions
+
+### Users
+
+![Users](screenshots/37-users.png)
+
+Create a login for each member of staff and assign a role. Never share one account between people — the activity log becomes useless if you do.
+
+### Roles
+
+![Roles](screenshots/38-roles.png)
+
+Four roles ship with the system:
+
+| Role | Dashboard | POS | Inventory | Finance | Reports | Users | Settings |
+|------|:---------:|:---:|:---------:|:-------:|:-------:|:-----:|:--------:|
+| **Super Admin** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Manager** | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ |
+| **Storekeeper** | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| **Salesperson** | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+
+These are starting points — edit any role's permissions, or create your own.
+
+### Permissions
+
+![Permissions](screenshots/39-permissions.png)
+
+The individual rights that roles are built from, grouped by area. Change these only when a role genuinely needs a right it does not have; a permission granted here applies to every user holding that role.
+
+---
+
+## 14. Administration
+
+### Settings
+
+![Settings](screenshots/41-settings.png)
+
+The business configuration screen, in four parts:
+
+- **Company Information** — name, phone, email, address, currency symbol and the footer line printed on invoices. These appear on every invoice, receipt and quotation.
+- **Company Logo** — upload a PNG or JPG, up to 1 MB, shown on printed documents.
+- **SMS Notification** — switch on and pick a provider (BulkSMSBD, SSL Wireless, Twilio or a custom HTTP endpoint), then enter the API key and sender ID.
+- **Loyalty Points** — switch on, set how many points ৳100 of spending earns and what one point is worth when redeemed.
+- **Database Backup** — **Download Backup** saves a complete copy of your database. Do this regularly and keep the file somewhere other than the shop computer.
+
+### Branches
+
+![Branches](screenshots/40-branches.png)
+
+Register additional shop locations if you trade from more than one address.
+
+### Login History
+
+![Login history](screenshots/44-login-history.png)
+
+Who signed in, when, from which IP address and with which browser.
+
+### Activity Log
+
+![Activity log](screenshots/43-activity-log.png)
+
+Who did what and when — the record to consult when a price, a stock figure or a sale is not what someone expected.
+
+### Profile
+
+![Profile](screenshots/42-profile.png)
+
+Your own name and email, with **Change Password** alongside. This is where you replace the default password on first login.
+
+### In-app manual
+
+![In-app manual](screenshots/45-manual.png)
+
+A shorter quick-reference guide built into the application, available in **English and Bangla**, with a PDF export. Use it at the counter; use this document for the full detail.
+
+---
+
+## Appendix A — How FIFO costing works
+
+FIFO means *first in, first out*: the oldest stock is treated as sold first.
+
+Suppose you buy the same camera twice:
+
+| Batch | Received | Qty | Unit cost |
+|-------|----------|-----|-----------|
+| 1 | 45 days ago | 24 | ৳3,590 |
+| 2 | 7 days ago | 16 | ৳3,900 |
+
+You now hold 40 units. Sell 30 and the system consumes **all 24 from batch 1** and **6 from batch 2**:
+
+```
+COGS = (24 × ৳3,590) + (6 × ৳3,900) = ৳86,160 + ৳23,400 = ৳109,560
+```
+
+It does **not** value them at 30 × the current price. This matters because supplier prices move: averaging would quietly misstate your margin on every sale.
+
+Two consequences worth remembering:
+
+1. **Enter the correct unit cost on every purchase.** It is the input to every profit figure that follows.
+2. **Stock value is a cost figure, not a selling figure.** The dashboard's ৳9,070,300 is what the goods cost you, not what they would fetch.
+
+---
+
+## Appendix B — Barcodes
+
+Every product gets an EAN-13 barcode automatically, generated from its internal id with the `200` prefix reserved for in-store use. You never type one.
+
+- **Product labels** — `Products → Labels`, for shelf and price labels.
+- **Batch labels** — from a product's page, one label per consignment, so you can tell an older batch from a newer one on the shelf.
+- **At the till** — scan into the POS barcode field and press Enter. Both product barcodes and batch barcodes work.
+
+A barcode is unique per product; the system refuses duplicates.
+
+---
+
+## Appendix C — Troubleshooting
+
+| Symptom | Cause and fix |
+|---------|---------------|
+| A menu item is missing | Your role lacks that permission. An administrator can grant it under **Access Control → Roles**. |
+| A product will not sell in POS | Stock is zero. Receive it through **Purchases**, or correct it with **Stock → Adjust**. |
+| Profit looks too high | Expenses have not been recorded, or a purchase was entered at the wrong unit cost. |
+| Profit looks too low | A purchase unit cost was entered too high, inflating COGS on those units. |
+| Stock figure is wrong | Check **Stock → Movements** — every change is listed with its cause. Correct it with **Adjust** and a note. |
+| A product photo does not appear | `Image URL` must be a reachable web address. The seeded catalog uses Unsplash links, which need an internet connection. |
+| A category will not delete | Products still reference it. Reassign them first. |
+| Cannot sign in | Passwords are case-sensitive. An administrator can reset one from **Access Control → Users**. |
+
+---
+
+<div align="center">
+
+[← Back to the README](../README.md)
+
+</div>
