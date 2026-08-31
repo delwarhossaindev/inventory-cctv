@@ -228,17 +228,52 @@ An alternative till screen. Instead of showing every product as a tile, it start
 
 Price estimates for customers who have not committed yet — common for CCTV installation jobs quoted before the site survey. Add line items with quantity and unit price; the total calculates itself. Quotations export to PDF and do **not** touch stock.
 
+Open a quotation to review the lines and totals before sending it:
+
+![Quotation details](screenshots/15a-quotation-detail.png)
+
+The PDF the customer receives carries your company header, the itemised prices and a validity date:
+
+![Quotation PDF](screenshots/15b-quotation-pdf.png)
+
 ### Sales
 
 ![Sales](screenshots/14-sales.png)
 
-Every completed invoice. Open one to see its lines, payment history and warranty dates, and to print the A4 invoice or the 58/80 mm thermal receipt.
+Every completed invoice, with what was charged, what was paid and what is still due.
+
+Open one for the full picture:
+
+![Sale details](screenshots/14a-sale-detail.png)
+
+This screen is worth knowing well:
+
+- The line items, subtotal, discount, tax and total.
+- **Cost of Goods (FIFO)** and **Gross Profit** — what those exact units cost you, and what you actually made on this sale.
+- **Payments** — every instalment of money received, with a **Collect** box to record more against the outstanding due.
+- The buttons along the top: **Invoice PDF**, **Download**, **Thermal Receipt**, **EMI** (turn it into a payment plan) and **Return**.
+
+**Invoice PDF** generates an A4 document — this is what you hand the customer:
+
+![Invoice PDF](screenshots/14b-sale-invoice.png)
+
+It carries your branch addresses, the customer's details, per-item warranty in months, the amount in words and the balance due. (The logo is missing above only because this preview was rendered in a browser; the real PDF includes it.)
+
+**Thermal Receipt** is the counter slip, sized for a 58 mm or 80 mm POS printer:
+
+![Thermal receipt](screenshots/14c-sale-receipt.png)
 
 ### Returns
 
 ![Returns](screenshots/19-returns.png)
 
 Record goods coming back. A return restores the stock and reduces recorded revenue, so profit reporting stays honest.
+
+Each return records which invoice it came from, what was sent back and why:
+
+![Return details](screenshots/19a-return-detail.png)
+
+The system will not let you return more of a product than that invoice actually sold.
 
 ---
 
@@ -251,6 +286,10 @@ Record goods coming back. A return restores the stock and reduces recorded reven
 How stock enters the system. Choose the supplier, add products with quantity and unit cost, and save.
 
 Saving a purchase **creates a new FIFO batch** at the cost you entered — which is what makes later profit figures correct. If you type the wrong unit cost here, every margin calculation on those units will be wrong, so check it before saving.
+
+Open a purchase to see what arrived, at what unit cost, and how much is still owed:
+
+![Purchase details](screenshots/17a-purchase-detail.png)
 
 Purchases can be paid in full or in part; the balance shows as due against the supplier and is settled from **Payments**.
 
@@ -269,6 +308,10 @@ Collect money owed on credit sales and settle what you owe suppliers. Payments c
 ![Installments](screenshots/26-installments.png)
 
 Turn a sale into a monthly payment plan. The system generates the schedule with due dates and tracks which instalments are paid, due or overdue.
+
+Open a plan to see the full schedule and mark instalments as collected:
+
+![Instalment plan details](screenshots/26a-installment-detail.png)
 
 ### Expenses
 
