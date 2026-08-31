@@ -20,9 +20,9 @@
 [![Sanctum](https://img.shields.io/badge/Sanctum-API_Auth-F05340?style=for-the-badge&logo=laravel&logoColor=white)](https://laravel.com/docs/sanctum)
 ![License](https://img.shields.io/badge/License-MIT-22c55e?style=for-the-badge)
 
-### 📖 [**Read the User Manual →**](docs/USER-MANUAL.md)
+### 📖 [**Read the User Manual →**](docs/USER-MANUAL.md)  ·  [**বাংলা ম্যানুয়াল →**](docs/USER-MANUAL-BN.md)
 
-*A screen-by-screen walkthrough of all 45 screens, with screenshots.*
+*A screen-by-screen walkthrough of all 45 screens, with screenshots. Available in English and Bangla.*
 
 </div>
 
@@ -132,7 +132,7 @@
 | 📱 | **SMS Gateway** | BulkSMSBD · SSL Wireless · Twilio · Custom HTTP |
 | 💾 | **DB Backup** | One-click SQLite download from the dashboard |
 | 📘 | **In-App Manual** | Scroll-spy user guide in English & Bangla · PDF export |
-| 📖 | **User Manual** | [Full illustrated guide](docs/USER-MANUAL.md) — every screen, with screenshots |
+| 📖 | **User Manual** | Full illustrated guide — every screen, with screenshots · [English](docs/USER-MANUAL.md) · [বাংলা](docs/USER-MANUAL-BN.md) |
 
 ---
 
@@ -469,7 +469,10 @@ Open **http://localhost:8000** in your browser.
 
 ### Next step
 
-Work through the **[User Manual](docs/USER-MANUAL.md)** — it walks every screen in order, from the first sign-in to closing the cash register, and explains how FIFO costing decides your profit figures.
+Work through the User Manual — it walks every screen in order, from the first sign-in to closing the cash register, and explains how FIFO costing decides your profit figures.
+
+- 🇬🇧 **[English](docs/USER-MANUAL.md)** — for developers and administrators
+- 🇧🇩 **[বাংলা](docs/USER-MANUAL-BN.md)** — plain Bangla, written for counter staff
 
 ---
 

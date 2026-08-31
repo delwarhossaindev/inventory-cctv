@@ -2,6 +2,8 @@
 
 A screen-by-screen guide to the CCTV inventory and point-of-sale system.
 
+> 🇧🇩 বাংলায় পড়ুন: **[USER-MANUAL-BN.md](USER-MANUAL-BN.md)**
+
 Every screenshot below was captured from this application running locally against the seeded CCTV catalog (63 products, 30 categories). Screens that depend on trading history — sales, purchases, payments, returns, most reports — are shown in their **empty state**, because the database has stock but no transactions yet. The layout and controls are exactly what you will see once you start selling.
 
 ---
@@ -492,6 +494,6 @@ A barcode is unique per product; the system refuses duplicates.
 
 <div align="center">
 
-[← Back to the README](../README.md)
+[← Back to the README](../README.md) · [🇧🇩 বাংলা ম্যানুয়াল](USER-MANUAL-BN.md)
 
 </div>
